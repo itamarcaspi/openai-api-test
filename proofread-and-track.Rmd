@@ -38,12 +38,6 @@ library(diffr)
 ## Setting the OpenAI API key
 
 This code sets the [OpenAI API](https://platform.openai.com/account/api-keys) key which will be used to authenticate requests to the OpenAI API.
-```{r, include=FALSE}
-Sys.setenv(
-  OPENAI_API_KEY = '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'
-)
-```
-
 ```{r, eval=FALSE}
 Sys.setenv(
   OPENAI_API_KEY = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
