@@ -1,0 +1,118 @@
+---
+title: "Automated Proofreading with R and ChatGPT"
+author: "Itamar Caspi"
+date: "2023-04-29"
+abstract: "This document demonstrates how to leverage the power of OpenAI's GPT-3.5-turbo model to perform automated proofreading tasks. By sending text passages to the model, we can obtain improved versions that have been checked for flow and clarity. The RMarkdown code presented here showcases the necessary steps, from setting up API authentication to comparing the original and edited texts."
+output:
+  html_document:
+    code_folding: show
+    highlight: haddock
+    keep_md: no
+    theme: journal
+    toc: yes
+    toc_depth: 4
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE
+  )
+```
+
+
+## Introduction
+In this document, we demonstrate how to use the GPT-3.5-turbo model from OpenAI to perform automated proofreading tasks. By sending text passages to the model, we can receive improved versions that have been checked for flow and clarity. The RMarkdown code presented here showcases the necessary steps, from setting up API authentication to comparing the original and edited texts.
+
+## Loading necessary R libraries
+
+This code loads three R libraries: `openai` for interacting with the OpenAI API, `glue` for creating and manipulating strings, and `diffr` for comparing differences between texts.
+```{r}
+library(openai)
+library(glue)
+library(diffr)
+```
+
+
+## Setting the OpenAI API key
+
+This code sets the [OpenAI API](https://platform.openai.com/account/api-keys) key which will be used to authenticate requests to the OpenAI API.
+```{r, include=FALSE}
+Sys.setenv(
+  OPENAI_API_KEY = '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'
+)
+```
+
+```{r, eval=FALSE}
+Sys.setenv(
+  OPENAI_API_KEY = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+)
+```
+
+
+## Defining a function to get completions from ChatGPT
+
+This code defines a function, `get_completion`, that takes a prompt as input and returns a completion from the GPT-3.5-turbo model using the OpenAI API.
+```{r}
+get_completion <- function(prompt) {
+
+  messages <- list(list("role" = "user", "content" = prompt))
+  
+  response <- create_chat_completion(
+    model = "gpt-3.5-turbo",
+    messages = messages,
+    temperature = 0
+  )
+  
+  return(response[["choices"]][["message.content"]])
+}
+```
+
+## Get input text
+
+This code creates a multiline string using the `glue` package and assigns it to the variable text. This string contains the text that will be sent to the GPT-3.5-turbo model for proofreading.
+```{r}
+text <- glue(
+  "
+  Got this for my daughter for her birthday cuz she keeps taking I mine from my room. Yes, adults also like pandas too. She takes I it everywhere with her, and it's super soft and cute. One of the I ears is a bit lower than the other, and I don't think that was I designed to be asymmetrical.\n\n It's a bit small for what I paid for it though. I think there might be other options that are bigger for I the same price. It arrived a day earlier than expected, so I got to play with it myself before I gave it to my daughter.
+  "
+)
+```
+
+
+## Creating and sending the prompt
+
+This code creates a prompt using the glue library, which instructs the GPT-3.5-turbo model to proofread the text for flow and clarity.
+```{r}
+prompt <- glue(
+"
+proofread this review for flow and clarity: ```{text}```  
+"
+)
+```
+
+This code calls the get_completion function with the prompt created earlier and assigns the proofread text returned by the GPT-3.5-turbo model to the variable response.
+```{r}
+response <- get_completion(prompt)
+```
+
+
+## Track changes
+
+This code creates two temporary files and writes the original text and the edited text returned by the GPT-3.5-turbo model to these files, respectively. This code uses the `diffr` library to compare the differences between the original text and the edited text returned by the GPT-3.5-turbo model. The differences will be displayed in a visually easy-to-compare format.
+```{r}
+original = tempfile()
+writeLines(text, con = original)
+edited = tempfile()
+writeLines(response, con = edited)
+diffr(original, edited, before = "Original text", after = "Edited text")
+```
+
+
+## Final thoughts
+In this blog post, we have explored how to harness the capabilities of OpenAI's GPT-3.5-turbo model to perform automated proofreading tasks. By integrating the model into an RMarkdown document, we can quickly and efficiently check and improve text passages for flow and clarity.
+
+The power of GPT-3.5-turbo not only saves time for writers and editors but also allows them to focus on generating creative and high-quality content. With the potential to scale up and adapt to various text editing and proofreading needs, GPT-3.5-turbo can become an indispensable tool for professionals across industries.
+
+As language models continue to evolve, we can expect even more advanced capabilities and applications that will revolutionize the way we create, edit, and share written content. The possibilities are vast, and we are excited to see what the future holds for AI-driven proofreading and editing tools.
